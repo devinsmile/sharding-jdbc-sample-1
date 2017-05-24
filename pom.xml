@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.jd</groupId>
+  <artifactId>sharding-jdbc</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>sharding-jdbc</name>
+  <url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<saf.version>1.0.9</saf.version>
+        <jsf.version>1.5.5</jsf.version>
+
+		<org.jboss.resteasy.version>2.2.2.GA</org.jboss.resteasy.version>
+		<spring.version>3.2.6.RELEASE</spring.version>
+		<mybatis.version>3.2.3</mybatis.version>
+ 		<mybatis-spring.version>1.2.1</mybatis-spring.version>
+		<httpcomponents.version>4.2</httpcomponents.version>
+		<junit.version>4.10</junit.version>
+		<log4j.version>1.2.16</log4j.version>
+		<netty.version>3.2.5.Final</netty.version>
+		<velocity.version>1.7</velocity.version>
+		<build.file.encoding>UTF-8</build.file.encoding>
+		<project.version>2.0.0-SNAPSHOT</project.version>
+		<!-- clover -->
+		<clover.version>2.0.1-SNAPSHOT</clover.version>
+		<!-- json -->
+		<json-lib.version>2.4</json-lib.version>
+		<jackson.version>1.9.3</jackson.version>
+		<!-- data base -->
+		<dbcp.version>1.4</dbcp.version>
+		<mysql.driver.version>5.1.18</mysql.driver.version>
+		<h2.driver.version>1.3.173</h2.driver.version>
+		<oracle.driver.version>11.2</oracle.driver.version>
+		<sqlserver.driver.version>3.0</sqlserver.driver.version>
+		<clover.sql.timeout>30</clover.sql.timeout>
+		<!-- redis -->
+		<jedis.version>2.0.0</jedis.version>
+		<!-- mongo -->
+		<mongo.version>2.9.2</mongo.version>
+		<!-- dom4j -->
+		<dom4j.version>1.6.1</dom4j.version>
+		<!-- msp 客户端 -->
+		<mq.version>4.4.3</mq.version>
+	</properties>
+
+  <dependencies>
+  
+  	<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>${mybatis-spring.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>${mybatis.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.dangdang</groupId>
+		    <artifactId>sharding-jdbc-core</artifactId>
+		    <version>1.4.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+				<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysql.driver.version}</version>
+		</dependency>
+		
+<dependency>
+    <groupId>commons-dbcp</groupId>
+    <artifactId>commons-dbcp</artifactId>
+    <version>1.4</version>
+</dependency>
+    
+  </dependencies>
+</project>

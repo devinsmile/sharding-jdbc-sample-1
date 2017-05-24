@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.sharding.mapper.LiveCourseMapper">
+
+	<!-- 批量插入数据到jdams_exam_score表-->
+	<insert id="insertLiveCourse" parameterType="com.jd.sharding.entity.LiveCourse">
+		insert into jdams_school_live(
+			course_name,course_start_time,course_end_time,study_url,teach_url,source,teacher_name,course_desc,
+			create_time,create_pin,ts,time_range
+		)values(
+			#{courseName},#{startTime},#{endTime},#{studyUrl},#{teachUrl},#{source},#{teacherName},#{courseDesc},
+			now(),#{createUser},now(),#{timeRange}
+		)
+	</insert>
+
+	<resultMap id="liveCourseMap" type="com.jd.sharding.entity.LiveCourse">
+		<result column="id" property="id"></result>
+		<result column="course_name" property="courseName"></result>
+		<result column="course_start_time" property="startTime"></result>
+		<result column="course_end_time" property="endTime"></result>
+		<result column="teacher_name" property="teacherName"></result>
+		<result column="study_url" property="studyUrl"></result>
+		<result column="teach_url" property="teachUrl"></result>
+		<result column="source" property="source"></result>
+		<result column="course_desc" property="courseDesc"></result>
+		<result column="time_range" property="timeRange"></result>
+	</resultMap>
+
+	<!-- 查询直播课程列表-->
+	<select id="getLiveCourseList" resultMap="liveCourseMap">
+		<![CDATA[
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		from jdams_school_live
+		where course_start_time <= now() and course_end_time >now()
+		and yn =1
+		union
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		from jdams_school_live
+		where course_start_time >= now() and course_end_time <= DATE_ADD(now(),INTERVAL 7 DAY)
+		and yn =1
+		order by course_start_time
+		]]>
+	</select>
+
+	<!-- 查询直播课程列表-->
+	<select id="getRecentlyLiveCourse" resultMap="liveCourseMap">
+		<![CDATA[
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		from jdams_school_live
+		where course_start_time >= now()
+		and yn =1
+		order by course_start_time
+		limit 1
+		]]>
+	</select>
+
+	<!-- 查询直播课程列表-->
+	<select id="isExistsLiveCourse" resultType="int" parameterType="map">
+		select count(*)
+		from jdams_school_live
+		where date_format(course_start_time,'%Y-%m-%d %H:%i:%s')= #{startTime}
+		and date_format(course_end_time,'%Y-%m-%d %H:%i:%s')= #{endTime}
+		and yn =1
+	</select>
+
+
+
+	<!--取得某一天对应的直播课程-->
+	<select id="getLiveCourseListForSomeDay" resultMap="liveCourseMap" parameterType="map">
+
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		  from jdams_school_live
+		 where date_format(course_start_time,'%Y-%m-%d') = #{queryTime}
+		   and date_format(course_end_time,'%Y-%m-%d') = #{queryTime}
+		   and yn = 1
+		order by course_start_time
+
+	</select>
+
+	<!-- 根据id获取直播课程-->
+	<select id="getLiveCourseById" resultMap="liveCourseMap" parameterType="long">
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		from jdams_school_live
+		where id = #{id}
+		and yn =1
+	</select>
+
+	<!-- 根据id获取直播课程-->
+	<update id="updateLiveCourseById" parameterType="com.jd.sharding.entity.LiveCourse">
+		update jdams_school_live
+			<set>
+			<trim prefix="" suffix="" suffixOverrides=",">
+				<if test="courseName != null">
+					course_name = #{courseName},
+				</if>
+				<if test="startTime != null">
+					course_start_time = #{startTime},
+				</if>
+				<if test="endTime != null">
+					course_end_time = #{endTime},
+				</if>
+				<if test="teacherName != null">
+					teacher_name = #{teacherName},
+				</if>
+				<if test="studyUrl != null">
+					study_url = #{studyUrl},
+				</if>
+				<if test="teachUrl != null">
+					teach_url = #{teachUrl},
+				</if>
+				<if test="courseDesc != null">
+					course_desc = #{courseDesc},
+				</if>
+				<if test="timeRange != null">
+					time_range = #{timeRange},
+				</if>
+				<if test="updateUser != null">
+					update_pin = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				update_time = now()
+			</trim>
+		</set>
+		where id = #{id}
+	</update>
+
+
+	<!-- 根据id获取直播课程-->
+	<update id="deleteLiveCourseById" parameterType="long">
+		 update jdams_school_live
+		    set yn=0
+		  where id = #{id}
+	</update>
+
+
+	<!--根据条件获得直播课程记录-->
+	<select id="getLiveCourseListByCondition" resultMap="liveCourseMap" parameterType="map">
+		select id,course_name,course_start_time,course_end_time,teacher_name,study_url,teach_url,source,course_desc,time_range
+		from jdams_school_live
+		<where>
+			yn = 1
+			<if test="startTime != null and startTime !='' ">
+				and date_format(course_start_time,'%Y-%m-%d') >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime !='' ">
+				and <![CDATA[ date_format(course_end_time,'%Y-%m-%d') <= #{endTime} ]]>
+			</if>
+		</where>
+		order by course_start_time
+	</select>
+
+	<!-- 查询直播课程列表-->
+	<select id="isCourseNameExist" resultType="int" parameterType="com.jd.sharding.entity.LiveCourse">
+		select count(*)
+		from jdams_school_live
+		<where>
+			yn=1
+			<if test="courseName != null and courseName !=''">
+				AND course_name = #{courseName,jdbcType=VARCHAR}
+			</if>
+			<if test="id != null">
+				AND id != #{id,jdbcType=BIGINT}
+			</if>
+		</where>
+
+	</select>
+
+</mapper>
+
