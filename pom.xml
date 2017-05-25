@@ -89,11 +89,19 @@
 			<version>${mybatis.version}</version>
 		</dependency>
 		
+		<!-- 1.4.2  -->
+		
 		<dependency>
 		    <groupId>com.dangdang</groupId>
 		    <artifactId>sharding-jdbc-core</artifactId>
 		    <version>1.4.2</version>
 		</dependency>
+		
+		<dependency>
+            <groupId>com.dangdang</groupId>
+            <artifactId>sharding-jdbc-config-spring</artifactId>
+            <version>1.4.2</version>
+        </dependency>
 		
 		<dependency>
 			<groupId>junit</groupId>
@@ -113,6 +121,19 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql.driver.version}</version>
 		</dependency>
+		
+		<dependency>
+    <groupId>ognl</groupId>
+    <artifactId>ognl</artifactId>
+    <version>3.2</version>
+</dependency>
+
+<dependency>
+    <groupId>javax.el</groupId>
+    <artifactId>javax.el-api</artifactId>
+    <version>3.0.0</version>
+</dependency>
+		
 		
 <dependency>
     <groupId>commons-dbcp</groupId>

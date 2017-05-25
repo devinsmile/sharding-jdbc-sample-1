@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="GBK"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="
-	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-	http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
-	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
-	default-lazy-init ="true" >
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:tx="http://www.springframework.org/schema/tx"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:rdb="http://www.dangdang.com/schema/ddframe/rdb"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                        http://www.dangdang.com/schema/ddframe/rdb http://www.dangdang.com/schema/ddframe/rdb/rdb.xsd">
 
 	<bean id="partition1" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
@@ -44,7 +44,7 @@
         <property name="password" value="${jdbc-password-0}"/>
     </bean>
 
-    <!--数据源1-->
+    <!--鏁版嵁婧�1-->
     <bean id="ds_1" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc-driver}"/>
         <property name="url" value="${jdbc-url-1}"/>
@@ -52,7 +52,7 @@
         <property name="password" value="${jdbc-password-1}"/>
     </bean>
 
-    <!--数据源2-->
+    <!--鏁版嵁婧�2-->
     <bean id="ds_2" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${jdbc-driver}"/>
         <property name="url" value="${jdbc-url-2}"/>
@@ -61,70 +61,32 @@
     </bean>
 	
 	
-	<!--真正使用的数据源-->
-    <bean id="dataSource" class="com.dangdang.ddframe.rdb.sharding.api.rule.DataSourceRule">
-        <constructor-arg>
-            <map>
-                <entry key="ds_0" value-ref="ds_0"/>
-                <entry key="ds_1" value-ref="ds_1"/>
-                <entry key="ds_2" value-ref="ds_2"/>
-            </map>
-        </constructor-arg>
-    </bean>
+	<!-- 
+	<rdb:strategy id="orderTableStrategy" sharding-columns="order_id" algorithm-expression="t_order_${order_id.longValue()%2}"/>
+	-->
+	<rdb:strategy id="orderTableStrategy" sharding-columns="order_id" algorithm-class="com.jd.sharding.util.SingleKeyModuloTableShardingAlgorithm"/>
+	<rdb:strategy id="databaseShardingStrategy" sharding-columns="user_id" algorithm-class="com.jd.sharding.util.SingleKeyModuloDatabaseShardingAlgorithm"/>
 
-    <!--t_order的"分表"设置:分N个表 -->
-    <bean id="orderTableRule" class="com.dangdang.ddframe.rdb.sharding.api.rule.TableRule">
-        <constructor-arg index="0" value="t_order"/>
-        <constructor-arg index="1">
-            <list>
-                <value>t_order_0</value>
-                <value>t_order_1</value>
-            </list>
-        </constructor-arg>
-        <constructor-arg index="2" ref="dataSource"/>
-    </bean>
-
-    <!--分库的sharding规则:按user_id分库 -->
-    <bean id="databaseShardingStrategy"
-          class="com.dangdang.ddframe.rdb.sharding.api.strategy.database.DatabaseShardingStrategy">
-        <constructor-arg index="0" value="user_id"/>
-        <constructor-arg index="1">
-            <bean class="com.jd.sharding.util.SingleKeyModuloDatabaseShardingAlgorithm">
-                <!--dbount的值要跟上面dataSource的个数匹配-->
-                <property name="dbCount" value="3"/>
-            </bean>
-        </constructor-arg>
-    </bean>
-
-
-    <bean id="singleKeyModuloTableShardingAlgorithm" class="com.jd.sharding.util.SingleKeyModuloTableShardingAlgorithm">
-        <!--tableCount的值要跟上面t_order表设置的分表个数保持一致-->
-        <property name="tableCount" value="2"/>
-    </bean>
-
-    <!--分表的规则:按order_id分表-->
-    <bean id="tableShardingStrategy" class="com.dangdang.ddframe.rdb.sharding.api.strategy.table.TableShardingStrategy">
-        <constructor-arg index="0" value="order_id"/>
-        <constructor-arg index="1" ref="singleKeyModuloTableShardingAlgorithm" />
-    </bean>
-
-    <!--sharding规则Bean-->
-    <bean id="shardingRule" class="com.dangdang.ddframe.rdb.sharding.api.rule.ShardingRule">
-        <constructor-arg index="0" ref="dataSource"/>
-        <constructor-arg index="1">
-            <list>
-                <ref bean="orderTableRule"/>
-            </list>
-        </constructor-arg>
-        <constructor-arg index="2" ref="databaseShardingStrategy"/>
-        <constructor-arg index="3" ref="tableShardingStrategy"/>
-    </bean>
-
-    <!--sharding数据源-->
-    <bean id="shardingDataSource" class="com.dangdang.ddframe.rdb.sharding.api.ShardingDataSource">
-        <constructor-arg ref="shardingRule"/>
-    </bean>
-	
+    <rdb:data-source id="shardingDataSource">
+        <rdb:sharding-rule data-sources="ds_0,ds_1,ds_2">
+            <rdb:table-rules>
+                <rdb:table-rule 
+                logic-table="t_order" 
+                actual-tables="t_order_0,t_order_1" 
+                database-strategy="databaseShardingStrategy" 
+                table-strategy="orderTableStrategy"
+                />
+                <!--  
+                	<rdb:table-rule logic-table="t_order_item" actual-tables="t_order_item_${0..3}" table-strategy="orderItemTableStrategy"/>
+            	-->
+            </rdb:table-rules>
+            
+            <!-- 鏁版嵁搴撴殏鏃朵笉鍒嗗簱
+            <rdb:default-database-strategy sharding-columns="none" algorithm-class="com.dangdang.ddframe.rdb.sharding.api.strategy.database.NoneDatabaseShardingAlgorithm"/>
+        	 -->
+      
+        </rdb:sharding-rule>
+    </rdb:data-source>
 	
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<!-- 
@@ -139,7 +101,7 @@
 		<property name="mapperLocations" value="classpath:mybatis-mapper/**/*.xml" />
 	</bean>
 	
-	<!-- Mapper扫描 -->
+	<!-- Mapper鎵弿 -->
 	<bean id="mybatisMapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
   		<property name="basePackage" value="com.jd.sharding.**.mapper" />
   		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
@@ -148,11 +110,6 @@
 	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
 		<constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
 	</bean>
-	
-	
-
-
-
 	
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

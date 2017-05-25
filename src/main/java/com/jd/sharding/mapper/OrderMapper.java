@@ -9,6 +9,8 @@ import com.jd.sharding.entity.OrderExample;
 public interface OrderMapper {
 
     int insertBatch(List<Order> orders);
+    
+    int addOrder(Order order);
 
     int countByExample(OrderExample example);
 
